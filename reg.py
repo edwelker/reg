@@ -11,6 +11,7 @@ session.mount('https://www.ncbi.nln.nih.gov', adapter)
 @postfork
 def pf():
     f = open('lock.tmp', 'w+')
+    print(os.getenv("B"))
     try:
         fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         print("Got the lock on pid: {}".format(os.getpid()))
