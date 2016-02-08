@@ -1,14 +1,36 @@
 import time
 import uwsgi
 import requests
+import fcntl
+from uwsgidecorators import *
 
-s = requests.Session()
+# s = requests.Session()
 
-def register(signum):
-    start_time = time.time()
-    print("**********************here is the signum: {}".format(signum))
-    s.get("http://www.ncbi.nlm.nih.gov")
-    print("--- %s seconds ---" % (time.time() - start_time))
+# def register(signum):
+#     start_time = time.time()
+#     print("**********************here is the signum: {}".format(signum))
+#     s.get("http://www.ncbi.nlm.nih.gov")
+#     print("--- %s seconds ---" % (time.time() - start_time))
 
-uwsgi.register_signal(99, "", register)
-uwsgi.add_timer(99, 3)
+# uwsgi.register_signal(99, "", register)
+# uwsgi.add_timer(99, 3)
+
+
+# @postfork
+# def pf():
+#     """This returns 1 each time, b/c each post-fork is in a different thread/process"""
+#     global x
+#     x = x + 1
+#     print("Post-fork hook called, time number {}".format(x))
+
+@postfork
+def pf():
+    f = open('lock.tmp', 'w+')
+    try:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        print("Got the lock")
+    except IOError, e:
+        print("Unable to retrieve lock for fileno {}".format(f.fileno()))
+    finally:
+        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+        f.close()
