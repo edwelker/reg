@@ -1,3 +1,4 @@
+import os
 import time
 import uwsgi
 import requests
@@ -23,14 +24,23 @@ from uwsgidecorators import *
 #     x = x + 1
 #     print("Post-fork hook called, time number {}".format(x))
 
+
 @postfork
 def pf():
     f = open('lock.tmp', 'w+')
     try:
         fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        print("Got the lock")
+        print("Got the lock on pid: {}".format(os.getpid()))
+        for x in xrange(0,10):
+            print("Doing work, time {}, on pid: {}".format(x, os.getpid()))
+            time.sleep(1)
     except IOError, e:
-        print("Unable to retrieve lock for fileno {}".format(f.fileno()))
+        print("Unable to retrieve lock for fileno {}, pid: {}".format(f.fileno(), os.getpid()))
     finally:
-        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-        f.close()
+        try:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            print("Releasing the lock from pid: {}".format(os.getpid()))
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            f.close()
+        except IOError, e:
+            print("Finally on process that can't get lock, pid: {}".format(os.getpid()))
