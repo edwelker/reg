@@ -1,51 +1,58 @@
 import os
 import time
 import socket
+from decouple import config, UndefinedValueError
+import logging
 
-from ncbi.lbos import Lbos, LbosDomain
+try: # for tests: http://projects.unbit.it/uwsgi/wiki/TipsAndTricks
+    import uwsgi
+except:
+    pass
+
+from ncbi.lbos import Lbos
+
+
+try:
+    logfile = uwsgi.opt['logto']
+    logging.basicConfig(file=logfile, level=logging.INFO)
+except KeyError:
+    logging.basicConfig(handler=logging.StreamHandler, level=logging.INFO)
+except NameError: # for tests
+    pass
+
+
+
+logger = logging.getLogger()
 
 
 def register_loop():
     registered = False
     while True:
         if not registered:
-            try:
-                domain = getattr(LbosDomain, os.environ['LBOS_DOMAIN'])
-            except KeyError:
-                domain = None
-            except AttributeError:
-                raise Exception((
-                    "LBOS_DOMAIN variable has incorrect value. "
-                    "The choices are {}.".format(LbosDomain.available_domains())
-                ))
-
-            print("registering for domain {} from process {}".format(domain, os.getpid()))
-            client = Lbos(domain=domain)
+            client = Lbos()
+            logger.info("registering with {} from process {}".format(client.lbos_url, os.getpid()))
 
             ip = socket.gethostbyname(socket.gethostname())
-            try:
-                port = os.environ['PORT']
-            except KeyError:
-                port = '8080'
+            port = config('PORT', default='8080')
+
+            check_url = config('CHECK_URL', default='/')
 
             try:
-                check_url = os.environ['CHECK_URL']
-            except KeyError:
-                check_url = '/'
-
-            try:
-                version = os.environ['VERSION']
-                app_name = os.environ['APP_NAME']
-            except KeyError:
-                raise Exception("APP_NAME and VERSION are required environment variables.")
+                version = config('VERSION')
+                app_name = config('APP_NAME')
+            except UndefinedValueError:
+                msg = "VERSION and APP_NAME are required environment variables."
+                logger.exception(msg)
+                raise ValueError(msg)
 
             registered = client.announce(app_name, version, ip, port=port, check_url=check_url)
             if registered:
-                print("Congratulations! Your announcement for {}:{} was successful!".format(ip, port))
+                logger.info("Congratulations! Your announcement for {}:{} was successful!".format(ip, port))
             else:
-                print("Announcement for: {},{},{},{},{} failed.".format(app_name, version, ip, port, check_url))
+                logger.info("Announcement for: {},{},{},{},{} failed.".format(app_name, version, ip, port, check_url))
         time.sleep(900)
 
 
 if __name__ == '__main__':
     register_loop()
+

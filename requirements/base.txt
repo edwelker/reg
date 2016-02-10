@@ -1,0 +1,2 @@
+ncbi-lbos>=1.0.4
+python-decouple~=3.0
