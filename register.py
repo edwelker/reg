@@ -3,23 +3,24 @@ import time
 import socket
 from decouple import config, UndefinedValueError
 import logging
+from ncbi.lbos import Lbos
 
-try: # for tests: http://projects.unbit.it/uwsgi/wiki/TipsAndTricks
+
+# uwsgi package can be imported only when uwsgi instance started
+try: # for tests (hope it's temporarily): http://projects.unbit.it/uwsgi/wiki/TipsAndTricks
     import uwsgi
 except:
     pass
 
-from ncbi.lbos import Lbos
-
 
 try:
+    # use log file if it was specified
     logfile = uwsgi.opt['logto']
     logging.basicConfig(file=logfile, level=logging.INFO)
 except KeyError:
     logging.basicConfig(handler=logging.StreamHandler, level=logging.INFO)
 except NameError: # for tests
     pass
-
 
 
 logger = logging.getLogger()
