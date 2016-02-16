@@ -49,7 +49,7 @@ Here is a table which explains what all the options mean
 |env = CHECK_URL|relative URL for the health check|/|no|/check|
 |mule|separate worker which runs registration script|-|yes|register.py|
 
-For more information please see `python-lbos` README file.
+For more information please see `python-ncbi-lbos` README file.
 
 ## Running a project
 

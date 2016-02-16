@@ -10,3 +10,4 @@ setup(name='django-lbos',
       url='https://stash.ncbi.nlm.nih.gov/projects/PY/repos',
       scripts=['register.py'],
       )
+
