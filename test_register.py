@@ -40,6 +40,11 @@ class TestRegister(TestCase):
                 register_loop()
 
     def test_no_exceptions(self):
+        """
+        This test uses signals to terminate an infinite loop.
+        'signal.alarm(3)' sends signal.SIGALRM after 3 seconds
+        which causes TimeoutError and ends loop.
+        """
         with patch.dict('os.environ', {
             'APP_NAME': 'my-app',
             'VERSION': '1.3.0'
