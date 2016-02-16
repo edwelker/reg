@@ -44,12 +44,12 @@ Here is a table which explains what all the options mean
 |logto|log filename|prints to the stdout|no|uwsgi.log|
 |env = VERSION|version of the application|-|yes|1.0.0, 1.2.3.beta|
 |env = APP_NAME|path in ZooKeeper for your application|-|yes|app, /app, /bla/my-app|
-|env = LBOS_URL|custom URL for LBOS|value from /etc/ncbi/lbosresolver file|no|http://lbos.url:8080|
+|env = LBOS_URL|custom URL for LBOS|value from lbos resolver file file|no|http://lbos.url:8080|
 |env = PORT|custom application port|8080|no|8080, 7042|
 |env = CHECK_URL|relative URL for the health check|/|no|/check|
 |mule|separate worker which runs registration script|-|yes|register.py|
 
-For more information please go to the [lbos help page](http://lbos.prod.be-md.ncbi.nlm.nih.gov:8080/lbos).
+For more information please see `python-lbos` README file.
 
 ## Running a project
 
