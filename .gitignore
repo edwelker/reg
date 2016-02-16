@@ -1,1 +1,7 @@
+uwsgi.ini
 *.log
+.cache/
+__pycache__/
+build/
+*.pyc
+
